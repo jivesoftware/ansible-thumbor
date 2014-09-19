@@ -1,0 +1,15 @@
+---
+# defaults file for ansible-thumbor
+thumbor_aws_version: a0c4bcc02601af317072adab32ce0be14d0cd492
+thumbor_server_name: localhost
+thumbor_user: thumbor
+thumbor_group: thumbor
+thumbor_home: /home/thumbor
+thumbor_config_file: /etc/thumbor.conf
+thumbor_key_file: /etc/thumbor.key
+thumbor_log_file: /var/log/thumbor
+thumbor_working_directory: /var/lib/thumbor
+thumbor_default: /etc/default/thumbor
+thumbor_server_name: localhost
+thumbor_bind_address: 127.0.0.1
+thumbor_loader: thumbor_aws.loaders.s3_loader

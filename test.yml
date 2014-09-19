@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  roles:
+    - ansible-thumbor
+  vars:
+    nginx_remove_default: yes
+    nginx_worker_processes: 1
+    nginx_worker_connections: 1024

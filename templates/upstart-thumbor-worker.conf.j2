@@ -1,0 +1,23 @@
+description "Thumbor image manipulation service"
+author "Wichert Akkerman <wichert@wiggy.net>"
+
+stop on stopped thumbor
+
+respawn
+respawn limit 5 10
+umask 022
+
+setuid {{thumbor_user}}
+setgid {{thumbor_group}}
+
+env DAEMON=/usr/local/bin/thumbor
+
+env conffile={{thumbor_config_file}}
+env keyfile={{thumbor_key_file}}
+env ip={{thumbor_bind_address}}
+
+chdir /var/lib/thumbor
+
+instance $p
+
+exec $DAEMON -c "${conffile}" -i "${ip}" -k "${keyfile}" -p "${p}"

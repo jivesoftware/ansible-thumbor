@@ -1,0 +1,104 @@
+---
+- name: create group
+  group: >
+    name={{thumbor_group}}
+    state=present
+
+- name: create user
+  user: >
+    name={{thumbor_user}}
+    group={{thumbor_group}}
+
+- name: update apt
+  apt: update_cache=yes
+
+- name: install pgmagick deps
+  apt: pkg={{item}}
+  with_items:
+    - python-pgmagick
+    - python-pip
+    - python-dev
+    - git-core
+    - libjpeg-dev
+    - libtiff-dev
+    - libpng-dev
+    - libjasper-dev
+    - libwebp-dev
+
+- name: install pgmagick
+  pip: >
+    name={{item}}
+  with_items:
+    - pycurl
+    - numpy
+    - thumbor
+    - boto
+    - git+https://github.com/willtrking/thumbor_aws.git@{{ thumbor_aws_version }}#egg=thumbor_aws
+
+- name: copy nginx config
+  template: >
+    src=nginx-site.conf.j2
+    dest=/etc/nginx/sites-available/thumbor.conf
+    owner=root
+    group=root
+    mode=0755
+
+- name: enable nginx site
+  file: >
+    src=/etc/nginx/sites-available/thumbor.conf
+    dest=/etc/nginx/sites-enabled/thumbor.conf
+    state=link
+  notify: restart nginx
+
+- name: copy thumbor config
+  template: >
+    src=thumbor.conf.j2
+    dest={{ thumbor_config_file }}
+    owner=root
+    group=root
+    mode=0755
+
+- name: copy thumbor default
+  template: >
+    src=default-thumbor.j2
+    dest={{ thumbor_default }}
+    owner=root
+    group=root
+    mode=0755
+
+- name: copy thumbor key
+  template: >
+    src=thumbor.key.j2
+    dest={{ thumbor_key_file }}
+    owner=root
+    group=root
+    mode=0755
+
+- name: working dir
+  file: >
+    path={{thumbor_working_directory}}
+    owner=root
+    group=root
+    mode=0644
+    state=directory
+
+- name: copy thumbor upstart script
+  template: >
+    src=upstart-thumbor.conf.j2
+    dest=/etc/init/thumbor.conf
+    owner=root
+    group=root
+    mode=644
+
+- name: copy thumbor worker upstart script
+  template: >
+    src=upstart-thumbor-worker.conf.j2
+    dest=/etc/init/thumbor-worker.conf
+    owner=root
+    group=root
+    mode=644
+
+- service: >
+    name=thumbor
+    state=running
+    enabled=yes
