@@ -1,67 +1,87 @@
-upstream thumbor {
-	      server 127.0.0.1:8888;
+#user  nobody;
+worker_processes  1;
+
+#error_log  /var/log/error.log debug;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#rewrite_log on;
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
 }
 
-server {
-    listen       80;
-    server_name  {{ thumbor_server_name }}
-    client_max_body_size 10M;
-    rewrite_log on;
+http {
+# A virtual host using mix of IP-, name-, and port-based configuration
+#
 
-    location ^~ /images {
-        # get there only if we have a query string
+	upstream thumbor {
+    	    server localhost:8888;
+	}
+
+	server {
+    	    listen       80;
+    	    server_name  {{ thumbor_server_name }};
+    	    client_max_body_size 10M;
+	    rewrite_log on;
+
+    	    location ^~ /images {
+	    # get there only if we have a query string
+    		if ($is_args) {
+        	    set $width "0";
+        	    set $height "0";
+		    set $mode "";
+		    set $result "";
+        	}
+
+		if ($args ~* "(?:^|&)width=([^&]+)") {
+            	    set $width $1;
+        	    set $dim "${width}x${height}";
+                    set $result "${dim}";
+		}
+
+		if ($args ~* "(?:^|&)height=([^&]+)") {
+            	    set $height $1;
+		    # string concatenation using sort of bash syntax
+                    set $dim "${width}x${height}";
+		    set $result "${dim}";
+        	}
+
+                if ($args ~* "(?:^|&)mode=([^&]+)") {
+                    set $mode $1;
+                }
+
+		if ($mode = "smart") {
+		    set $result "${dim}/smart";
+		}
+
+		if ($mode = "fit-in") {
+		    set $result "fit-in/${dim}";
+		}
+
 		if ($is_args) {
-    	    set $width "0";
-    	    set $height "0";
-	        set $mode "";
-	        set $result "";
-    	}
+        	    # the ? here prevent query string from being appended
+        	    rewrite ^/images(/.*)$ /unsafe/$result/$1? last;
+    		}
 
-    	if ($args ~* "(?:^|&)width=([^&]+)") {
-    	    set $width $1;
-	        set $dim "${width}x${height}";
-            set $result "${dim}";
-    	}
+		rewrite ^/images(/.*)$ /unsafe/$1 last;
+	    }
 
-    	if ($args ~* "(?:^|&)height=([^&]+)") {
-    	    set $height $1;
-    	    # string concatenation using sort of bash syntax
-            set $dim "${width}x${height}";
-    	    set $result "${dim}";
-    	}
+	    location ~ /unsafe {
+		proxy_set_header X-Real-IP $remote_addr;
+        	proxy_set_header HOST $http_host;
+        	proxy_set_header X-NginX-Proxy true;
 
-        if ($args ~* "(?:^|&)mode=([^&]+)") {
-            set $mode $1;
-        }
+        	proxy_pass http://thumbor;
+        	proxy_redirect off;
+    	    }
 
-    	if ($mode = "smart") {
-    	    set $result "${dim}/smart";
-    	}
-
-    	if ($mode = "fit-in") {
-    	    set $result "fit-in/${dim}";
-    	}
-
-    	if ($is_args) {
-    	    # the ? here prevent query string from being appended
-    	    rewrite ^/images(/.*)$ /unsafe/$result/$1? last;
-    	}
-
-    	rewrite ^/images(/.*)$ /unsafe/$1 last;
-    }
-
-    location ~ /unsafe {
-	    proxy_set_header X-Real-IP $remote_addr;
-    	proxy_set_header HOST $http_host;
-    	proxy_set_header X-NginX-Proxy true;
-
-    	proxy_pass http://thumbor;
-    	proxy_redirect off;
-    }
-
-    location = /favicon.ico {
-		return         204;
-		access_log     off;
-		log_not_found  off;
-    }
+	    location = /favicon.ico {
+  		return 204;
+  		access_log     off;
+  		log_not_found  off;
+	    }
+	}
 }

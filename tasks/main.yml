@@ -38,22 +38,7 @@
 - name: copy nginx config
   template: >
     src=nginx-site.conf.j2
-    dest=/etc/nginx/sites-available/thumbor.conf
-    owner=root
-    group=root
-    mode=0755
-
-- name: enable nginx site
-  file: >
-    src=/etc/nginx/sites-available/thumbor.conf
-    dest=/etc/nginx/sites-enabled/thumbor.conf
-    state=link
-  notify: restart nginx
-
-- name: copy thumbor config
-  template: >
-    src=thumbor.conf.j2
-    dest={{ thumbor_config_file }}
+    dest=/etc/nginx/nginx.conf
     owner=root
     group=root
     mode=0755
@@ -100,5 +85,5 @@
 
 - service: >
     name=thumbor
-    state=running
+    state=reloaded
     enabled=yes
