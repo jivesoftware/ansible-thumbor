@@ -43,13 +43,21 @@
     group=root
     mode=0755
 
-- name: copy thumbor default
+- name: copy thumbor conf default
   template: >
-    src=default-thumbor.j2
-    dest={{ thumbor_default }}
+    src=thumbor.conf.j2
+    dest={{ thumbor_config_file }}
     owner=root
     group=root
     mode=0755
+
+- name: copy thumbor upstart script
+  template: >
+    src=upstart-thumbor.conf.j2
+    dest=/etc/init/thumbor.conf
+    owner=root
+    group=root
+    mode=644
 
 - name: copy thumbor key
   template: >

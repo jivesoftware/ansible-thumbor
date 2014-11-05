@@ -13,3 +13,4 @@ thumbor_default: /etc/default/thumbor
 thumbor_server_name: localhost
 thumbor_bind_address: 127.0.0.1
 thumbor_loader: thumbor_aws.loaders.s3_loader
+thumbor_max_age: 31536000
