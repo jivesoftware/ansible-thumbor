@@ -33,6 +33,7 @@
     - numpy
     - thumbor
     - boto
+    - dateutil
     - git+https://github.com/willtrking/thumbor_aws.git@{{ thumbor_aws_version }}#egg=thumbor_aws
 
 - name: copy nginx config

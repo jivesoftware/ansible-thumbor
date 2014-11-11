@@ -12,5 +12,7 @@ thumbor_working_directory: /var/lib/thumbor
 thumbor_default: /etc/default/thumbor
 thumbor_server_name: localhost
 thumbor_bind_address: 127.0.0.1
-thumbor_loader: thumbor_aws.loaders.s3_loader
+thumbor_loader: thumbor.loaders.http_loader
+thumbor_storage: thumbor.storages.file_storage
+thumbor_result_storage: None
 thumbor_max_age: 31536000
