@@ -94,5 +94,5 @@
 
 - service: >
     name=thumbor
-    state=reloaded
+    state=restarted
     enabled=yes
