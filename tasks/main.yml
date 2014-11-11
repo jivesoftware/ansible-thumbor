@@ -33,7 +33,8 @@
     - numpy
     - thumbor
     - boto
-    - dateutil
+# this will be needed for the aws_storage to work but dateutil is not the correct name
+#    - dateutil
     - git+https://github.com/willtrking/thumbor_aws.git@{{ thumbor_aws_version }}#egg=thumbor_aws
 
 - name: copy nginx config
