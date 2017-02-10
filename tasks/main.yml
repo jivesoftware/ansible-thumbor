@@ -53,13 +53,13 @@
     group=root
     mode=0755
 
-- name: copy thumbor upstart script
+- name: copy default-thumbor
   template: >
-    src=upstart-thumbor.conf.j2
-    dest=/etc/init/thumbor.conf
+    src=default-thumbor.j2
+    dest=/etc/default/thumbor
     owner=root
     group=root
-    mode=644
+    mode=0755
 
 - name: copy thumbor key
   template: >
